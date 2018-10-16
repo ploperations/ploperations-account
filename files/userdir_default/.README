@@ -1,0 +1,6 @@
+If you would like to customize your $HOME across all systems managed by
+Puppet, create a module and store the files there. For example, if you were to
+name the module site_files and your account name was jdoe then the files for
+your home directory would go in site_files/files/jdoe. Once the files are in
+place you can update your account to include the home_source_module parameter like
+so: home_source_module => 'site_files'

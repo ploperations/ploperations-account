@@ -15,7 +15,6 @@ define account::user (
   Optional[String[1]]           $home               = undef,
   Optional[String[1]]           $group              = undef,
   Optional[Array[String]]       $groups             = undef,
-  Boolean                       $test               = false,
   Optional[Variant[Integer, Pattern[/^\d*$/]]] $uid = undef,
   Boolean                       $usekey             = true,
   Optional[String[1]]           $key                = undef,
@@ -26,23 +25,14 @@ define account::user (
   Boolean                       $hushlogin          = false,
   Optional[String[1]]           $password           = undef,
   Array[String[1]]              $shared_accounts    = [],
+  Optional[String[1]]           $home_source_module = undef,
 ) {
+  include account
 
-  include ::account
-
-  # Determine if we are testing the module, and if so, use the module directory
-  # to deploy the user.
-  if $test == true {
-    $home_source = "puppet:///modules/account/${name}"
-    group { $group: ensure => $ensure }
-  } else {
-    $home_source = "puppet:///modules/site_files/userdirs/${name}"
-  }
-
-  case $::kernel {
+  case $facts['kernel'] {
     'Linux','SunOS': {
-      include ::zsh
-      include ::bash
+      include zsh
+      include bash
       $require_shells = [ Class['zsh'], Class['bash'] ]
     }
     default: {}
@@ -60,7 +50,7 @@ define account::user (
   if $home { # Set home
     $homedir = $home
   } else {
-    $homedir = $::kernel ? {
+    $homedir = $facts['kernel'] ? {
       'Darwin' => "/Users/${name}",
       default  => "/home/${name}",
     }
@@ -87,6 +77,11 @@ define account::user (
     $userid = undef
   }
 
+  $user_purge_ssh_keys = $ensure ? {
+    'present' => $usekey,
+    'absent'  => undef,
+  }
+
   user { $name:
     ensure         => $ensure,
     gid            => $group,
@@ -98,10 +93,7 @@ define account::user (
     password       => $password,
     shell          => $shell,
     expiry         => $expire,
-    purge_ssh_keys => $ensure ? {
-      'present' => $usekey,
-      'absent'  => undef,
-    },
+    purge_ssh_keys => $user_purge_ssh_keys,
     require        => $require_shells
   }
 
@@ -109,7 +101,7 @@ define account::user (
   if $ensure == 'present' {
     File { owner => $name, group => $group }
 
-    if $::kernel == 'SunOS' {
+    if $facts['kernel'] == 'SunOS' {
       if $home {
         $real_homedir = $home
       } else {
@@ -119,10 +111,16 @@ define account::user (
       $real_homedir = $homedir
     }
 
+    if $home_source_module {
+      $home_source = "puppet:///modules/${home_source_module}/${name}"
+    } else {
+      $home_source = 'puppet:///modules/account/userdir_default'
+    }
+
     file { $real_homedir:
       ensure  => directory,
       recurse => remote,
-      source  => [ $home_source, 'puppet:///modules/site_files/userdir_default' ],
+      source  => $home_source,
     }
 
     # Only if we are using key auth
