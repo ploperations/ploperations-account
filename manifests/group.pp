@@ -1,3 +1,4 @@
+# create a local group and define its members
 define account::group (
   $ensure    = present,
   $members   = [],
@@ -5,8 +6,8 @@ define account::group (
   $exclusive = true,
 ) {
 
-  $members.each |$m| {
-    Account::User <| title == $m |> {
+  $members.each |$member| {
+    Account::User <| title == $member |> {
       ensure => $ensure
     }
   }

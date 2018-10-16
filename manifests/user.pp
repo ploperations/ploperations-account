@@ -33,9 +33,15 @@ define account::user (
     'Linux','SunOS': {
       include zsh
       include bash
-      $require_shells = [ Class['zsh'], Class['bash'] ]
+
+      $require_shells = [
+        Class['bash'],
+        Class['zsh'],
+      ]
     }
-    default: {}
+    default: {
+      $require_shells = []
+    }
   }
 
   if $group {
@@ -66,13 +72,6 @@ define account::user (
 
   if $uid {
     $userid = $uid
-
-    file { "/var/users/${name}":
-      ensure  => $ensure,
-      replace => false,
-      content => "${userid}",
-      require => File['/var/users'],
-    }
   } else {
     $userid = undef
   }
@@ -99,7 +98,10 @@ define account::user (
 
   # Only if we are ensuring a user is present
   if $ensure == 'present' {
-    File { owner => $name, group => $group }
+    File {
+      owner => $name,
+      group => $group,
+    }
 
     if $facts['kernel'] == 'SunOS' {
       if $home {
