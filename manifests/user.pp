@@ -1,9 +1,56 @@
-# Manage a user account
+# @summary Manage a user account
 #
-# $usekey indicates whether we should manage SSH authorized keys with this
-# defined type, not whether or not SSH keys are used at all.
+# @param ensure
+#   Whether to ensure the user is present or absent on the node.
+# @param group
+#   Primary group for the user.
+# @param groups
+#   Secondary groups for the user. There is no distinction on Windows.
+# @param comment
+#   Comment field for the user. This is generally the user's name.
+# @param shell
+#   Full path to the user's preferred shell. This does nothing on Windows.
+# @param home
+#   Full path to the user's home directory. This does nothing on Windows.
+# @param home_source_module
+#   A module that contains files to put in the user's home directory, e.g.
+#   .bashrc. By default, the home directory is just set up with a .README file
+#   that explains how to use this parameter.
+#
+#   The module is expected to have a directory named after the user at the top
+#   level that contains the files. For example, modules/userdirs/luke/.bashrc
+#
+#   This does nothing on Windows.
+# @param uid
+#   User id number for the user. This does nothing on Windows.
+# @param usekey
+#   Whether or not to manage SSH keys for the user. If this is false, then keys
+#   will not be added or removed.
+#
+#   You can still set up keys externally if `$usekey` is false.
+#
+#   This doesn't do anything on Windows; it is effectively always true.
+# @param key
+#   SSH public key. This must not contain the type or the comment — it's just
+#   the second part, after ssh-rsa or whatever your keytype is.
+# @param keytype
+#   The type of your SSH key.
+# @param expire
+#   When the user account expires in YYYY-MM-DD format.
+# @param password
+#   A password for the user. If this is left undefined, you will simply not be
+#   able to use password authentication on splatnix (*nix: Linux, BSD, macOS,
+#   and Solaris).
+#
+#   Windows requires passwords. If it is not specified, this module will remove
+#   the user account.
+# @param shared_accounts
+#   An array of shared accounts to add the user's SSH key to.
 define account::user (
-  Enum['present', 'absent']     $ensure             = 'present',
+  Enum['present', 'absent']  $ensure             = 'present',
+  Optional[String[1]]        $group              = undef,
+  Array[String[1]]           $groups             = [],
+  Optional[String]           $comment            = undef,
   Enum[
     '/bin/bash',
     '/bin/sh',
@@ -11,158 +58,84 @@ define account::user (
     '/bin/false',
     '/usr/sbin/nologin',
     '/usr/bin/git-shell'
-  ]                             $shell              = '/bin/bash',
-  Optional[String[1]]           $home               = undef,
-  Optional[String[1]]           $group              = undef,
-  Optional[Array[String]]       $groups             = undef,
-  Optional[Variant[Integer, Pattern[/^\d*$/]]] $uid = undef,
-  Boolean                       $usekey             = true,
-  Optional[String[1]]           $key                = undef,
-  Enum['ssh-rsa', 'ssh-dsa', 'ssh-dss', 'rsa'] $keytype = 'ssh-rsa',
-  Optional[String]              $email              = '',
-  Optional[Pattern[/^\d{4}-\d{2}-\d{2}$/]] $expire  = undef,
-  Optional[String[1]]           $comment            = undef,
-  Boolean                       $hushlogin          = false,
-  Optional[String[1]]           $password           = undef,
-  Array[String[1]]              $shared_accounts    = [],
-  Optional[String[1]]           $home_source_module = undef,
+  ]                          $shell              = '/bin/bash',
+  Optional[String[1]]        $home               = undef,
+  Optional[String[1]]        $home_source_module = undef,
+  Optional[Integer[1]]       $uid                = undef,
+  Boolean                    $usekey             = true,
+  Optional[Ssh::Key::String] $key                = undef,
+  Ssh::Key::Type             $keytype            = 'ssh-rsa',
+  Optional[Account::Date]    $expire             = undef,
+  Optional[Sensitive]        $password           = undef,
+  Array[String[1]]           $shared_accounts    = [],
 ) {
   include account
 
-  case $facts['kernel'] {
-    'Linux','SunOS': {
-      include zsh
-      include bash
-
-      $require_shells = [
-        Class['bash'],
-        Class['zsh'],
-      ]
-    }
-    default: {
-      $require_shells = []
-    }
-  }
-
-  if $group {
-    realize(Group[$group])
-  }
-
-  if $groups {
-    realize(Group[$groups])
-  }
-
-  # Test if we are managing home directories
-  if $home { # Set home
-    $homedir = $home
+  if $password {
+    $_password = $password
   } else {
-    $homedir = $facts['kernel'] ? {
-      'Darwin' => "/Users/${name}",
-      default  => "/home/${name}",
+    $hiera_accounts = lookup({
+      name          => 'account::user',
+      value_type    => Hash[String[1], Hash],
+      default_value => {},
+    })
+
+    $_password_raw = $facts['os']['family'] ? {
+      'windows' => $hiera_accounts.dig($title, 'windows_password'),
+      default   => $hiera_accounts.dig($title, 'crypted_password'),
+    }
+
+    $_password = $_password_raw ? {
+      String  => Sensitive($_password_raw),
+      default => $_password_raw,
     }
   }
 
-  if $hushlogin {
-    $hushlogin = "${homedir}/.hushlogin"
-    file { $hushlogin:
-      ensure  => present,
-      content => ' ',
+  if $facts['os']['family'] == 'windows' {
+    account::user::windows { $title:
+      ensure   => $ensure,
+      group    => $group,
+      groups   => $groups,
+      comment  => $comment,
+      key      => $key,
+      keytype  => $keytype,
+      expire   => $expire,
+      password => $_password,
     }
-  }
-
-  if $uid {
-    $userid = $uid
   } else {
-    $userid = undef
+    account::user::splatnix { $title:
+      ensure             => $ensure,
+      group              => $group,
+      groups             => $groups,
+      comment            => $comment,
+      shell              => $shell,
+      home               => $home,
+      home_source_module => $home_source_module,
+      uid                => $uid,
+      usekey             => $usekey,
+      key                => $key,
+      keytype            => $keytype,
+      expire             => $expire,
+      password           => $_password,
+    }
   }
 
-  $user_purge_ssh_keys = $ensure ? {
-    'present' => $usekey,
-    'absent'  => undef,
-  }
+  if $ensure == 'present' and $usekey and $key {
+    # In order to put people's SSH keys in the authorized_keys file of a
+    # shared account, we iterate over a list of accounts they should
+    # have access to. This is a useful pattern used for deploying, where many
+    # users might need access to a single account.
 
-  user { $name:
-    ensure         => $ensure,
-    gid            => $group,
-    uid            => $userid,
-    home           => $homedir,
-    groups         => $groups,
-    comment        => $comment,
-    managehome     => false,
-    password       => $password,
-    shell          => $shell,
-    expiry         => $expire,
-    purge_ssh_keys => $user_purge_ssh_keys,
-    require        => $require_shells
-  }
-
-  # Only if we are ensuring a user is present
-  if $ensure == 'present' {
-    File {
-      owner => $name,
-      group => $group,
-    }
-
-    if $facts['kernel'] == 'SunOS' {
-      if $home {
-        $real_homedir = $home
-      } else {
-        $real_homedir = "/export${homedir}"
-      }
-    } else {
-      $real_homedir = $homedir
-    }
-
-    if $home_source_module {
-      $home_source = "puppet:///modules/${home_source_module}/${name}"
-    } else {
-      $home_source = 'puppet:///modules/account/userdir_default'
-    }
-
-    file { $real_homedir:
-      ensure  => directory,
-      recurse => remote,
-      source  => $home_source,
-    }
-
-    # Only if we are using key auth
-    if $usekey {
-      if $key {
-        ssh_authorized_key { "${name}@${group}":
-          ensure  => present,
-          key     => $key,
-          type    => $keytype,
-          user    => $name,
-          require => File[$real_homedir],
-        }
-
-        # in order to put people's SSH keys in the authorized_keys file of a
-        # shared account, we iterate over a list of accounts they should
-        # have access to. This is a pattern used for deploying, where a deploy
-        # account is accessed by many users.
-        # a profile should collect the ssh_authorized_key virtual resources
-
-        # grandfather in all users having access to gitmirror
-        $all_shared_accounts = $shared_accounts + ['gitmirror', 'git']
-        $all_shared_accounts.each |String[1] $account_name| {
-          @ssh_authorized_key { "${name}@${account_name}":
-            ensure  => present,
-            key     => $key,
-            type    => $keytype,
-            user    => $account_name,
-            tag     => "${account_name}-keys",
-            require => File[$real_homedir],
-          }
-        }
-      } else {
-        file { "${real_homedir}/.ssh":
-          ensure => directory,
-          mode   => '0700',
-        }
-
-        file { "${real_homedir}/.ssh/authorized_keys":
-          mode    => '0600',
-        }
+    # Collect the Ssh::Authorized_key virtual resources in a profile, e.g:
+    #   Ssh::Authorized_key <| tag == "${shared_account}-keys" |>
+    $all_shared_accounts = $account::common_shared_accounts + $shared_accounts
+    $all_shared_accounts.each |String[1] $shared_account| {
+      @ssh::authorized_key { "${title}@${shared_account}":
+        ensure => 'present',
+        key    => $key,
+        type   => $keytype,
+        user   => $shared_account,
+        tag    => "${shared_account}-keys",
       }
     }
   }

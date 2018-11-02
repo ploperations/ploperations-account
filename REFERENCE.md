@@ -5,22 +5,50 @@
 
 **Classes**
 
-* [`account`](#account): Class: account  This class installs and manages local user accounts.
+* [`account`](#account): Parameters needed by defined types in this module
 
 **Defined types**
+
+_Public Defined types_
 
 * [`account::grant::administrators`](#accountgrantadministrators): Grant accounts Administrators access on Windows
 * [`account::grant::group`](#accountgrantgroup): Grant accounts access to a specific group
 * [`account::grant::rdp`](#accountgrantrdp): Grant accounts RDP access on Windows
-* [`account::user`](#accountuser): Manage a user account  $usekey indicates whether we should manage SSH authorized keys with this defined type, not whether or not SSH keys are
+* [`account::user`](#accountuser): Manage a user account
+
+_Private Defined types_
+
+* `account::user::splatnix`: This is not intended to be used directly. Use account::user instead.
+* `account::user::windows`: This is not intended to be used directly. Use account::user instead.
 
 ## Classes
 
 ### account
 
-Class: account
+There's no need to instantiate this class; it does nothing. It's used for
+setting parameters in hiera that account::user and friends can access.
 
-This class installs and manages local user accounts.
+#### Parameters
+
+The following parameters are available in the `account` class.
+
+##### `common_shared_accounts`
+
+Data type: `Array[String[1]]`
+
+An array of shared accounts to which all users will have their keys added.
+
+Default value: []
+
+##### `cygwin`
+
+Data type: `Boolean`
+
+Whether or not to use Cygwin on Windows. This defaults to the value of
+`cygwin::enable` in hiera, which is where you should set it. (It, in turn,
+defaults to `false`.)
+
+Default value: lookup('cygwin::enable', Boolean, undef, false)
 
 ## Defined types
 
@@ -121,9 +149,6 @@ Default value: $title
 
 Manage a user account
 
-$usekey indicates whether we should manage SSH authorized keys with this
-defined type, not whether or not SSH keys are used at all.
-
 #### Parameters
 
 The following parameters are available in the `account::user` defined type.
@@ -132,9 +157,33 @@ The following parameters are available in the `account::user` defined type.
 
 Data type: `Enum['present', 'absent']`
 
-
+Whether to ensure the user is present or absent on the node.
 
 Default value: 'present'
+
+##### `group`
+
+Data type: `Optional[String[1]]`
+
+Primary group for the user.
+
+Default value: `undef`
+
+##### `groups`
+
+Data type: `Array[String[1]]`
+
+Secondary groups for the user. There is no distinction on Windows.
+
+Default value: []
+
+##### `comment`
+
+Data type: `Optional[String]`
+
+Comment field for the user. This is generally the user's name.
+
+Default value: `undef`
 
 ##### `shell`
 
@@ -147,7 +196,7 @@ Data type: `Enum[
     '/usr/bin/git-shell'
   ]`
 
-
+Full path to the user's preferred shell. This does nothing on Windows.
 
 Default value: '/bin/bash'
 
@@ -155,31 +204,30 @@ Default value: '/bin/bash'
 
 Data type: `Optional[String[1]]`
 
-
+Full path to the user's home directory. This does nothing on Windows.
 
 Default value: `undef`
 
-##### `group`
+##### `home_source_module`
 
 Data type: `Optional[String[1]]`
 
+A module that contains files to put in the user's home directory, e.g.
+.bashrc. By default, the home directory is just set up with a .README file
+that explains how to use this parameter.
 
+The module is expected to have a directory named after the user at the top
+level that contains the files. For example, modules/userdirs/luke/.bashrc
 
-Default value: `undef`
-
-##### `groups`
-
-Data type: `Optional[Array[String]]`
-
-
+This does nothing on Windows.
 
 Default value: `undef`
 
 ##### `uid`
 
-Data type: `Optional[Variant[Integer, Pattern[/^\d*$/]]]`
+Data type: `Optional[Integer[1]]`
 
-
+User id number for the user. This does nothing on Windows.
 
 Default value: `undef`
 
@@ -187,63 +235,50 @@ Default value: `undef`
 
 Data type: `Boolean`
 
+Whether or not to manage SSH keys for the user. If this is false, then keys
+will not be added or removed.
 
+You can still set up keys externally if `$usekey` is false.
+
+This doesn't do anything on Windows; it is effectively always true.
 
 Default value: `true`
 
 ##### `key`
 
-Data type: `Optional[String[1]]`
+Data type: `Optional[Ssh::Key::String]`
 
-
+SSH public key. This must not contain the type or the comment — it's just
+the second part, after ssh-rsa or whatever your keytype is.
 
 Default value: `undef`
 
 ##### `keytype`
 
-Data type: `Enum['ssh-rsa', 'ssh-dsa', 'ssh-dss', 'rsa']`
+Data type: `Ssh::Key::Type`
 
-
+The type of your SSH key.
 
 Default value: 'ssh-rsa'
 
-##### `email`
-
-Data type: `Optional[String]`
-
-
-
-Default value: ''
-
 ##### `expire`
 
-Data type: `Optional[Pattern[/^\d{4}-\d{2}-\d{2}$/]]`
+Data type: `Optional[Account::Date]`
 
-
-
-Default value: `undef`
-
-##### `comment`
-
-Data type: `Optional[String[1]]`
-
-
+When the user account expires in YYYY-MM-DD format.
 
 Default value: `undef`
-
-##### `hushlogin`
-
-Data type: `Boolean`
-
-
-
-Default value: `false`
 
 ##### `password`
 
-Data type: `Optional[String[1]]`
+Data type: `Optional[Sensitive]`
 
+A password for the user. If this is left undefined, you will simply not be
+able to use password authentication on splatnix (*nix: Linux, BSD, macOS,
+and Solaris).
 
+Windows requires passwords. If it is not specified, this module will remove
+the user account.
 
 Default value: `undef`
 
@@ -251,15 +286,7 @@ Default value: `undef`
 
 Data type: `Array[String[1]]`
 
-
+An array of shared accounts to add the user's SSH key to.
 
 Default value: []
-
-##### `home_source_module`
-
-Data type: `Optional[String[1]]`
-
-
-
-Default value: `undef`
 
