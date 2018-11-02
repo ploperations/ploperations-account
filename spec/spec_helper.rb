@@ -26,11 +26,23 @@ default_fact_files.each do |f|
 end
 
 RSpec.configure do |c|
+  c.mock_with :rspec do |mocks|
+    # Necessary to use allow_any_instance_of
+    mocks.syntax = [:expect, :should]
+  end
+
   c.default_facts = default_facts
   c.before :each do
     # set to strictest setting for testing
     # by default Puppet runs at warning level
     Puppet.settings[:strict] = :warning
+
+    # This is needed to test puppetlabs/acl on OSs other than Windows
+    # rubocop:disable RSpec/AnyInstance
+    allow_any_instance_of(
+      Puppet::Type.type(:acl).provider(:windows),
+    ).to(receive(:validate))
+    # rubocop:enable RSpec/AnyInstance
   end
 end
 

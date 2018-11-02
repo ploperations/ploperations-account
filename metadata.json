@@ -2,7 +2,7 @@
   "name": "ploperations-account",
   "version": "0.1.0",
   "author": "InfraCore at Puppet",
-  "summary": "",
+  "summary": "Manage users and groups on *nix and Windows",
   "license": "Apache-2.0",
   "source": "https://github.com/ploperations/ploperations-account.git",
   "project_page": "https://github.com/ploperations/ploperations-account",
@@ -11,6 +11,14 @@
     {
       "name": "ploperations/bash",
       "version_requirement": ">= 0.1 < 2.0.0"
+    },
+    {
+      "name": "puppetlabs/stdlib",
+      "version_requirement": ">= 5.0.0 < 6.0.0"
+    },
+    {
+      "name": "ploperations/ssh",
+      "version_requirement": ">= 0.2 < 2.0.0"
     },
     {
       "name": "ploperations/zsh",
@@ -40,6 +48,15 @@
       "operatingsystem": "Ubuntu",
       "operatingsystemrelease": [
         "16.04"
+      ]
+    },
+    {
+      "operatingsystem": "windows",
+      "operatingsystemrelease": [
+        "2008 R2",
+        "2012 R2",
+        "10",
+        "2016"
       ]
     },
     {
