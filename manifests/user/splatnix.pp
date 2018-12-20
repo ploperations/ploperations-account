@@ -104,6 +104,7 @@ define account::user::splatnix (
     home           => $user_home,
     groups         => $groups,
     managehome     => false,
+    membership     => 'inclusive',
     password       => $password,
     shell          => $shell,
     expiry         => $expire,
