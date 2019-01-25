@@ -5,3 +5,7 @@
 ipaddress: "172.16.254.254"
 is_pe: false
 macaddress: "AA:AA:AA:AA:AA:AA"
+windows_env:
+  PROGRAMDATA: C:\ProgramData
+  WINDIR: C:\Windows
+

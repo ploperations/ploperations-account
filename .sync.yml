@@ -1,0 +1,7 @@
+---
+spec/default_facts.yml:
+  extra_facts:
+    # Needed by ploperations/ssh
+    windows_env:
+      PROGRAMDATA: 'C:\ProgramData'
+      WINDIR: 'C:\Windows'
