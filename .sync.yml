@@ -1,7 +1,18 @@
 ---
+.gitlab-ci.yml:
+  delete: true
+appveyor.yml:
+  delete: true
+Rakefile:
+  requires:
+    - 'puppet-strings/tasks'
 spec/default_facts.yml:
   extra_facts:
     # Needed by ploperations/ssh
     windows_env:
       PROGRAMDATA: 'C:\ProgramData'
       WINDIR: 'C:\Windows'
+spec/spec_helper.rb:
+  mock_with: ':rspec'
+  coverage_report: true
+
