@@ -18,7 +18,8 @@
 #   that explains how to use this parameter.
 #
 #   The module is expected to have a directory named after the user at the top
-#   level that contains the files. For example, modules/userdirs/luke/.bashrc
+#   level that contains the user's files. For example, pass `profile/users`,
+#   then create a `site/profile/files/luke/.bashrc` file.
 #
 #   This does nothing on Windows.
 # @param uid
@@ -42,23 +43,27 @@
 #   able to use password authentication on splatnix (*nix: Linux, BSD, macOS,
 #   and Solaris).
 #
-#   Windows requires passwords. If it is not specified, this module will remove
-#   the user account.
+#   You may specify this in hiera under `account::user` parameter. See the
+#   [Passwords section in README.md](https://github.com/ploperations/ploperations-account/blob/master/README.md#passwords).
+#
+#   Windows requires passwords. If it is not specified here or in hiera, this
+#   will remove the user account.
 # @param shared_accounts
-#   An array of shared accounts to add the user's SSH key to.
+#   An array of shared accounts to add the user's SSH key to. To activate,
+#   collect the `Ssh::Authorized_key` virtual resources in a profile, e.g:
+#
+#   ~~~
+#   Ssh::Authorized_key <| tag == "${shared_account}-keys" |>
+#   ~~~
+#
+#   See the
+#   [Shared accounts section in README.md](https://github.com/ploperations/ploperations-account/blob/master/README.md#shared-accounts).
 define account::user (
   Enum['present', 'absent']  $ensure             = 'present',
   Optional[String[1]]        $group              = undef,
   Array[String[1]]           $groups             = [],
   Optional[String]           $comment            = undef,
-  Enum[
-    '/bin/bash',
-    '/bin/sh',
-    '/bin/zsh',
-    '/bin/false',
-    '/usr/sbin/nologin',
-    '/usr/bin/git-shell'
-  ]                          $shell              = '/bin/bash',
+  Stdlib::Unixpath           $shell              = '/bin/bash',
   Optional[String[1]]        $home               = undef,
   Optional[String[1]]        $home_source_module = undef,
   Optional[Integer[1]]       $uid                = undef,
@@ -126,8 +131,6 @@ define account::user (
     # have access to. This is a useful pattern used for deploying, where many
     # users might need access to a single account.
 
-    # Collect the Ssh::Authorized_key virtual resources in a profile, e.g:
-    #   Ssh::Authorized_key <| tag == "${shared_account}-keys" |>
     $all_shared_accounts = $account::common_shared_accounts + $shared_accounts
     $all_shared_accounts.each |String[1] $shared_account| {
       @ssh::authorized_key { "${title}@${shared_account}":
