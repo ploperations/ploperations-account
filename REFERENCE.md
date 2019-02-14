@@ -187,14 +187,7 @@ Default value: `undef`
 
 ##### `shell`
 
-Data type: `Enum[
-    '/bin/bash',
-    '/bin/sh',
-    '/bin/zsh',
-    '/bin/false',
-    '/usr/sbin/nologin',
-    '/usr/bin/git-shell'
-  ]`
+Data type: `Stdlib::Unixpath`
 
 Full path to the user's preferred shell. This does nothing on Windows.
 
@@ -202,7 +195,7 @@ Default value: '/bin/bash'
 
 ##### `home`
 
-Data type: `Optional[String[1]]`
+Data type: `Optional[Stdlib::Unixpath]`
 
 Full path to the user's home directory. This does nothing on Windows.
 
@@ -217,7 +210,8 @@ A module that contains files to put in the user's home directory, e.g.
 that explains how to use this parameter.
 
 The module is expected to have a directory named after the user at the top
-level that contains the files. For example, modules/userdirs/luke/.bashrc
+level that contains the user's files. For example, pass `profile/users`,
+then create a `site/profile/files/luke/.bashrc` file.
 
 This does nothing on Windows.
 
@@ -277,8 +271,11 @@ A password for the user. If this is left undefined, you will simply not be
 able to use password authentication on splatnix (*nix: Linux, BSD, macOS,
 and Solaris).
 
-Windows requires passwords. If it is not specified, this module will remove
-the user account.
+You may specify this in hiera under `account::user` parameter. See the
+[Passwords section in README.md](https://github.com/ploperations/ploperations-account/blob/master/README.md#passwords).
+
+Windows requires passwords. If it is not specified here or in hiera, this
+will remove the user account.
 
 Default value: `undef`
 
@@ -286,7 +283,15 @@ Default value: `undef`
 
 Data type: `Array[String[1]]`
 
-An array of shared accounts to add the user's SSH key to.
+An array of shared accounts to add the user's SSH key to. To activate,
+collect the `Ssh::Authorized_key` virtual resources in a profile, e.g:
+
+~~~
+Ssh::Authorized_key <| tag == "${shared_account}-keys" |>
+~~~
+
+See the
+[Shared accounts section in README.md](https://github.com/ploperations/ploperations-account/blob/master/README.md#shared-accounts).
 
 Default value: []
 
