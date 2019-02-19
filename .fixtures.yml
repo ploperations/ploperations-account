@@ -10,6 +10,7 @@ fixtures:
     classification: 'ploperations/classification'
     concat: 'puppetlabs/concat'
     cygwin: 'mdelaney/cygwin'
+    node_encrypt: 'binford2k/node_encrypt'
     registry: 'puppetlabs/registry'
     ssh: 'ploperations/ssh'
     windows_env: 'puppet/windows_env'

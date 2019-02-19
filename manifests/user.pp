@@ -77,7 +77,7 @@ define account::user (
   include account
 
   if $password {
-    $_password = $password
+    $_password = node_encrypt::secret($password)
   } else {
     $hiera_accounts = lookup( {
         name          => 'account::user',
@@ -92,7 +92,7 @@ define account::user (
     }
 
     $_password = $_password_raw ? {
-      String  => Sensitive($_password_raw),
+      String  => node_encrypt::secret(Sensitive($_password_raw)),
       default => $_password_raw,
     }
   }
