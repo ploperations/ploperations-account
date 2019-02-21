@@ -1,7 +1,7 @@
 {
   "name": "ploperations-account",
-  "version": "0.9.0",
-  "author": "InfraCore at Puppet",
+  "version": "1.0.0",
+  "author": "ploperations",
   "summary": "Manage users and groups on *nix and Windows",
   "license": "Apache-2.0",
   "source": "https://github.com/ploperations/ploperations-account.git",
