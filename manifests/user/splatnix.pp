@@ -1,5 +1,31 @@
 # This is not intended to be used directly. Use account::user instead.
 # @api private
+#
+# @param ensure Enum['present', 'absent'] The state the account to enforce.
+#
+# @param comment Optional[String] A description of the user. Generally the user's full name.
+#
+# @param group Optional[String[1]] A single group to which the user belongs.
+#
+# @param groups Array[String[1]] A list of groups to which the user belongs.
+#
+# @param shell Stdlib::Unixpath The user's login shell.
+#
+# @param home Optional[Stdlib::Unixpath] The home directory of the user.
+#
+# @param home_source_module Optional[String[1]] The source used for the home directory File resource.
+#
+# @param uid Optional[Integer[1]] The user ID.
+#
+# @param usekey Boolean Whther to ensure an SSH::Authorized key for the user.
+#
+# @param key Optional[Ssh::Key::String] The user's public SSH key.
+#
+# @param keytype Ssh::Key::Type The user's SSH key type.
+#
+# @param expire Optional[Account::Date] The expiry date for this user.
+#
+# @param password Optional[Sensitive] The user's password.
 define account::user::splatnix (
   Enum[present, absent]      $ensure,
   Optional[String]           $comment            = undef,

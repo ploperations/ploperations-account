@@ -1,5 +1,21 @@
 # This is not intended to be used directly. Use account::user instead.
 # @api private
+#
+# @param ensure Enum['present', 'absent'] The state the account to enforce.
+#
+# @param groups Array[String[1]] A list of groups to which the user belongs.
+#
+# @param group Optional[String[1]] A single group to which the user belongs.
+#
+# @param comment Optional[String] A description of the user. Generally the user's full name.
+#
+# @param password Optional[Sensitive] The user's password.
+#
+# @param key Optional[Ssh::Key::String] The user's public SSH key.
+#
+# @param keytype Ssh::Key::Type The user's SSH key type.
+#
+# @param expire Optional[Account::Date] The expiry date for this user.
 define account::user::windows (
   Enum['present', 'absent']  $ensure,
   Array[String[1]]           $groups   = [],
