@@ -18,7 +18,7 @@
     },
     {
       "name": "ploperations/ssh",
-      "version_requirement": ">= 0.2 < 2.0.0"
+      "version_requirement": ">= 0.10.0 < 1.0.0"
     },
     {
       "name": "ploperations/zsh",
