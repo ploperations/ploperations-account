@@ -11,7 +11,7 @@ fixtures:
       ref: "a0ee04c65d89ca648113e96d15c5001c70fc718d"
     ssh:
       repo: "https://github.com/ploperations/ploperations-ssh"
-      tag: "0.9.0"
+      tag: "0.10.0"
     zsh:
       repo: "https://github.com/ploperations/ploperations-zsh"
       ref: "78e1e1b866dd8082768ce5cef60b0e3680a79137"
