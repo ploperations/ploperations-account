@@ -3,7 +3,7 @@
 ![](https://img.shields.io/puppetforge/pdk-version/ploperations/account.svg?style=popout)
 ![](https://img.shields.io/puppetforge/v/ploperations/account.svg?style=popout)
 ![](https://img.shields.io/puppetforge/dt/ploperations/account.svg?style=popout)
-[![Build Status](https://travis-ci.org/ploperations/ploperations-account.svg?branch=master)](https://travis-ci.org/ploperations/ploperations-account)
+[![Build Status](https://github.com/ploperations/ploperations-account/actions/workflows/pr_test.yml/badge.svg?branch=main)](https://github.com/ploperations/ploperations-account/actions/workflows/pr_test.yml)
 
 This module manages user accounts on Linux, FreeBSD, macOS, and Windows. It
 supports managing overlapping groups of users across many nodes.
@@ -13,15 +13,15 @@ each user. (The module must be installed, but it doesn't have to be used.)
 
 #### Table of Contents
 
-1. [Quick start](#quick-start)
-2. [Usage](#usage)
-    * [`uid` and `gid` gotchas](#uid-and-gid-gotchas)
-    * [Passwords](#passwords)
-    * [Predefining home directory files](#predefining-home-directory-files)
-    * [Shared accounts](#shared-accounts)
-    * [Cygwin](#cygwin)
-    * [`account::grant` and friends](#accountgrant-and-friends)
-3. [Reference][REFERENCE.md]
+- [Quick start](#quick-start)
+- [Usage](#usage)
+  - [`uid` and `gid` gotchas](#uid-and-gid-gotchas)
+  - [Passwords](#passwords)
+  - [Predefining home directory files](#predefining-home-directory-files)
+  - [Shared accounts](#shared-accounts)
+  - [Cygwin](#cygwin)
+  - [`account::grant` and friends](#accountgrant-and-friends)
+- [Reference](#reference)
 
 ## Quick start
 
