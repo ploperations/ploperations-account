@@ -58,7 +58,7 @@ define account::user::windows (
         default:
           ensure => 'directory',
           owner  => $title,
-        ;
+          ;
         cygwin::windows_path("/home/${title}"):;
         cygwin::windows_path("/home/${title}/.ssh"):;
       }
@@ -67,10 +67,10 @@ define account::user::windows (
         purge                      => true,
         inherit_parent_permissions => false,
         permissions                => [
-          {'identity' => 'NT AUTHORITY\SYSTEM', 'rights' => ['full']},
-          {'identity' => 'Administrators', 'rights' => ['full']},
-          {'identity' => $title, 'rights' => ['full']},
-          {'identity' => 'Everyone', 'rights' => ['read']},
+          { 'identity' => 'NT AUTHORITY\SYSTEM', 'rights' => ['full'] },
+          { 'identity' => 'Administrators', 'rights' => ['full'] },
+          { 'identity' => $title, 'rights' => ['full'] },
+          { 'identity' => 'Everyone', 'rights' => ['read'] },
         ],
       }
 
@@ -78,9 +78,9 @@ define account::user::windows (
         purge                      => true,
         inherit_parent_permissions => false,
         permissions                => [
-          {'identity' => 'NT AUTHORITY\SYSTEM', 'rights' => ['full']},
-          {'identity' => 'Administrators', 'rights' => ['full']},
-          {'identity' => $title, 'rights' => ['full']},
+          { 'identity' => 'NT AUTHORITY\SYSTEM', 'rights' => ['full'] },
+          { 'identity' => 'Administrators', 'rights' => ['full'] },
+          { 'identity' => $title, 'rights' => ['full'] },
         ],
       }
     }

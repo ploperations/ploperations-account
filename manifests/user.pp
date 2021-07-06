@@ -79,11 +79,12 @@ define account::user (
   if $password {
     $_password = $password
   } else {
-    $hiera_accounts = lookup({
-      name          => 'account::user',
-      value_type    => Hash[String[1], Hash],
-      default_value => {},
-    })
+    $hiera_accounts = lookup( {
+        name          => 'account::user',
+        value_type    => Hash[String[1], Hash],
+        default_value => {},
+      }
+    )
 
     $_password_raw = $facts['os']['family'] ? {
       'windows' => $hiera_accounts.dig($title, 'windows_password'),
