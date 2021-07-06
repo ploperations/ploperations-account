@@ -2,29 +2,17 @@
 # See https://github.com/puppetlabs/puppetlabs_spec_helper#using-fixtures for details
 ---
 fixtures:
-  repositories:
-    bash:
-      repo: "https://github.com/ploperations/ploperations-bash"
-      ref: "80d2812e41de9f1cd3ffe2b0f6e2bf8852f1741b"
-    classification:
-      repo: "https://github.com/ploperations/ploperations-classification"
-      ref: "a0ee04c65d89ca648113e96d15c5001c70fc718d"
-    ssh:
-      repo: "https://github.com/ploperations/ploperations-ssh"
-      tag: "0.10.0"
-    zsh:
-      repo: "https://github.com/ploperations/ploperations-zsh"
-      ref: "78e1e1b866dd8082768ce5cef60b0e3680a79137"
   forge_modules:
     # Most of these are dependencies of puppetlabs/ssh.
-    acl: "puppetlabs/acl"
-    # bash: "ploperations/bash"
-    chocolatey: "puppetlabs/chocolatey"
-    # classification: "ploperations/classification"
-    concat: "puppetlabs/concat"
-    cygwin: "mdelaney/cygwin"
-    registry: "puppetlabs/registry"
-    windows_env: "puppet/windows_env"
-    sshkeys_core: "puppetlabs/sshkeys_core"
-    stdlib: "puppetlabs/stdlib"
-    # zsh: "ploperations/zsh"
+    acl: 'puppetlabs/acl'
+    bash: 'ploperations/bash'
+    chocolatey: 'puppetlabs/chocolatey'
+    classification: 'ploperations/classification'
+    concat: 'puppetlabs/concat'
+    cygwin: 'mdelaney/cygwin'
+    registry: 'puppetlabs/registry'
+    ssh: 'ploperations/ssh'
+    windows_env: 'puppet/windows_env'
+    sshkeys_core: 'puppetlabs/sshkeys_core'
+    stdlib: 'puppetlabs/stdlib'
+    zsh: 'ploperations/zsh'
