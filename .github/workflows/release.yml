@@ -10,7 +10,14 @@ jobs:
       - name: Set runner time to pacific time
         uses: szenius/set-timezone@v1.0
         with:
-          timezoneLinux: "America/Los_Angeles"
+          timezoneLinux: 'America/Los_Angeles'
+          timezoneMacos: 'America/Los_Angeles'
+          timezoneWindows: 'America/Los_Angeles'
+      - name: Check time
+        run: |
+          date
+          echo
+          timedatectl status
       - name: Checkout code
         uses: actions/checkout@v2
         with:
@@ -33,6 +40,11 @@ jobs:
       - name: Validate Docs
         run: |
           set -e
+          echo "checking time"
+          date
+          echo "checking time in subshell"
+          d=$(date)
+          echo "$d"
           documentation=$(pdk bundle exec puppet strings generate --format markdown)
           if [ $(echo $documentation | grep -Ec "[1-9]+ undocumented|\[warn\]") -gt 0 ]; then
             echo "Please resolve documentation issues detected below:"

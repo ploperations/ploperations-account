@@ -13,7 +13,7 @@ jobs:
           - '7'
 
     name: Puppet ${{ matrix.puppet_versions }}
-    steps:
+    steps:                                                                                                                                  
     - uses: actions/checkout@v1
     - name: Install the PDK
       run: |
