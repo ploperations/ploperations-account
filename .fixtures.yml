@@ -5,6 +5,7 @@ fixtures:
   forge_modules:
     # Most of these are dependencies of puppetlabs/ssh.
     acl: 'puppetlabs/acl'
+    augeas_core: 'puppetlabs/augeas_core'
     bash: 'ploperations/bash'
     chocolatey: 'puppetlabs/chocolatey'
     classification: 'ploperations/classification'

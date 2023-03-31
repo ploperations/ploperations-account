@@ -19,6 +19,8 @@
 #
 # @param usekey Boolean Whther to ensure an SSH::Authorized key for the user.
 #
+# @param solaris_auto_home Configure automatic home directorys mapped from /export
+#
 # @param key Optional[Ssh::Key::String] The user's public SSH key.
 #
 # @param keytype Ssh::Key::Type The user's SSH key type.
@@ -36,6 +38,7 @@ define account::user::splatnix (
   Optional[String[1]]        $home_source_module = undef,
   Optional[Integer[1]]       $uid                = undef,
   Boolean                    $usekey             = true,
+  Boolean                    $solaris_auto_home  = true,
   Optional[Ssh::Key::String] $key                = undef,
   Ssh::Key::Type             $keytype            = 'ssh-rsa',
   Optional[Account::Date]    $expire             = undef,
@@ -72,9 +75,24 @@ define account::user::splatnix (
     }
 
     if $facts['kernel'] == 'SunOS' {
-      # The home directory in the user is not the same as the path to the
-      # home directory on disk.
-      $fs_home = "/export${user_home}"
+      if $solaris_auto_home {
+        # this is traditionally the way Solaris home directories have been managed
+        augeas { 'enable autofs home directories':
+          context => '/files/etc/auto_home',
+          changes => [
+            'ins 01 before *[map = "auto_home"]',
+            'set 01 "*"',
+            'set 01/location/1/host "localhost"',
+            'set 01/location/1/path "/export/home/&"',
+          ],
+          onlyif  => 'match */location/*[path = "/export/home/&"] size == 0',
+        }
+        # The home directory in the user is not the same as the path to the
+        # home directory on disk.
+        $fs_home = "/export${user_home}"
+      } else {
+        $fs_home = $user_home
+      }
     } else {
       $fs_home = $user_home
     }
