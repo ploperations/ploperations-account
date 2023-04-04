@@ -79,7 +79,8 @@ define account::user (
   if $password {
     $_password = $password
   } else {
-    $hiera_accounts = lookup( {
+    $hiera_accounts = lookup(
+      {
         name          => 'account::user',
         value_type    => Hash[String[1], Hash],
         default_value => {},
