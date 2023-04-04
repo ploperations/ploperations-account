@@ -1,6 +1,6 @@
 {
   "name": "ploperations-account",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": "ploperations",
   "summary": "Manage users and groups on *nix and Windows",
   "license": "Apache-2.0",
