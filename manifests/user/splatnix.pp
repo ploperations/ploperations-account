@@ -42,7 +42,7 @@ define account::user::splatnix (
   Optional[Ssh::Key::String] $key                = undef,
   Ssh::Key::Type             $keytype            = 'ssh-rsa',
   Optional[Account::Date]    $expire             = undef,
-  Optional[Sensitive]        $password           = undef,
+  Optional[Deferred]         $password           = undef,
 ) {
   if $home {
     $user_home = $home

@@ -125,6 +125,11 @@ account::user:
 Note the accounts must have passwords on Windows. Defining `account::user`
 without a password on Windows will cause that user to be removed.
 
+Passwords come into `account::user` with the [Sensitive][] type. From there
+`node_encrypt::secret()` takes over. The string is encrypted on the master,
+and then decrypted on the agent during catalog application. The `node_encrypt`
+module takes advantage of Deferred functions to do the decryption. You can
+read more about this at https://forge.puppet.com/binford2k/node_encrypt
 
 ### Predefining home directory files
 
@@ -222,6 +227,7 @@ pdk bundle exec puppet strings generate --format markdown
 ```
 
 [Hiera eyaml]: https://github.com/voxpupuli/hiera-eyaml
+[Sensitive]: https://puppet.com/docs/puppet/latest/lang_data_sensitive.html
 [ploperations/ssh]: https://github.com/ploperations/ploperations-ssh
 [REFERENCE.md]: https://github.com/ploperations/ploperations-account/blob/master/REFERENCE.md
 [virtual]: https://puppet.com/docs/puppet/latest/lang_virtual.html
